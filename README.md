@@ -20,7 +20,7 @@ On first launch, select a category, device, configuration, and US ZIP code. Coll
 - **Devices:** iPhone Duo, 18 Pro / Pro Max, and other cataloged iPhones; iPad, Air, Pro, and mini; standard Mac configurations. The bundled catalog also includes Studio Displays.
 - **Configuration search:** choose all configurations or one exact capacity, color, size, chip, and SKU. iPhones support unlocked or carrier variants. iPads include Wi-Fi and unlocked cellular variants.
 - **Catalog refresh:** read current part numbers and dimensions from Apple's buy-page data. Failed refreshes keep the last good catalog. Add a newer US family buy page from Settings without editing source code.
-- **History:** graph the last week or any date range, filter stores/configurations, inspect failed checks, and export CSV/JSON. History begins with your own observations.
+- **History:** switch the History device selector between saved device/configuration/carrier/ZIP timelines without changing the active collector. The graph, log, availability cards, filters, and patterns all follow that selection. iPhone, iPad, and Mac graphs use distinct colors; CSV exports include device and tracker identity. History begins with your own observations.
 - **Pickup links:** standard and education-store links for the specific configuration. Apple's checkout determines eligibility, pricing, and final pickup availability.
 - **Schedules:** daily windows, independent rates, overnight support, and an IANA time zone. Closing the window keeps the collector in the tray; the app must be running and the computer awake.
 - **Notifications:** the desktop app alerts on newly available store/configuration combinations. Continuous stock and failed checks do not create repeated alerts.

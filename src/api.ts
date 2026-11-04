@@ -5,6 +5,14 @@ export interface Target { device_id: string; zip_code: string; part_number: stri
 export interface Variant { part_number: string; title: string; carrier: string; dimensions: Record<string,string>; standard_url: string; education_url: string; coming_soon: boolean; details_error?:string|null; }
 export interface Device { id: string; name: string; category: string; buy_path: string; variants: Variant[]; checked_at_ms: number | null; last_error: string | null; }
 export interface Catalog { schema_version: number; devices: Device[]; }
+export interface HistoryTarget {
+  key:string; target:Target|null; device_name:string; configuration:string; category:string;
+  checks:number; last_attempt:number|null; active:boolean;
+}
+export interface HistoryView {
+  targets:HistoryTarget[]; selected:HistoryTarget; latest:Snapshot|null;
+  last_error:string|null; points:Point[]; last_available:LastAvailable[];
+}
 export function trackerKey(target: Target) {
   const url=new URL(`apple://us/${encodeURIComponent(target.zip_code)}/${encodeURIComponent(target.device_id)}/${encodeURIComponent(target.carrier)}`);
   if(target.part_number)url.searchParams.set("part",target.part_number);
@@ -180,6 +188,14 @@ export async function call<T>(
   if (native) return invoke<T>(command, args);
   if (command === "get_catalog") return bundledCatalog as T;
   const snapshot = await previewSnapshot();
+  if(command==="get_history_view") {
+    const target:Target={device_id:"ipad-pro",zip_code:"94025",part_number:"MDWU4LL/A",carrier:"unlocked"};
+    const device=(bundledCatalog as Catalog).devices.find(d=>d.id===target.device_id)!;
+    const selected:HistoryTarget={key:snapshot.url,target,device_name:device.name,configuration:device.variants.find(v=>v.part_number===target.part_number)?.title??target.part_number,category:device.category,checks:1,last_attempt:snapshot.observed_at,active:true};
+    const points=await call<Point[]>("get_history",args);
+    const last_available=await call<LastAvailable[]>("get_last_available",args);
+    return {targets:[selected],selected,latest:snapshot,last_error:null,points,last_available} as T;
+  }
   if (command === "get_latest" || command === "get_snapshot")
     return snapshot as T;
   if (command === "get_last_available")

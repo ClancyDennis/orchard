@@ -49,6 +49,8 @@ import {
   type Status,
   type TimeWindow,
   type Catalog,
+  type HistoryView,
+  type HistoryTarget,
 } from "./api";
 
 type Range = "day" | "week" | "month" | "custom";
@@ -207,6 +209,9 @@ export default function App() {
   const [catalogError,setCatalogError]=useState("");
   const [newPageUrl,setNewPageUrl]=useState("");
   const setupPrompted=useRef(false);
+  const [historyKey,setHistoryKey]=useState("");
+  const [historyView,setHistoryView]=useState<HistoryView|null>(null);
+  const [historyTargets,setHistoryTargets]=useState<HistoryTarget[]>([]);
   const [page, setPage] = useState<Page>("overview");
   const [status, setStatus] = useState<Status | null>(null);
   const [latest, setLatest] = useState<Snapshot | null>(null);
@@ -252,15 +257,11 @@ export default function App() {
   const refresh = useCallback(async () => {
     const token = ++generation.current;
     try {
-      const [nextStatus, nextLatest, nextPoints, nextLastAvailable] =
-        await Promise.all([
-          call<Status>("get_status"),
-          call<Snapshot | null>("get_latest"),
-          validRange
-            ? call<Point[]>("get_history", { startMs, endMs, storeId, product })
-            : Promise.resolve<Point[]>([]),
-          call<LastAvailable[]>("get_last_available", { storeId, product }),
-        ]);
+      const [nextStatus, nextView] = await Promise.all([
+        call<Status>("get_status"),
+        call<HistoryView>("get_history_view",{historyKey:historyKey||null,startMs:validRange?startMs:0,endMs:validRange?endMs:0,storeId,product}),
+      ]);
+      const nextLatest=nextView.latest;
       if (token !== generation.current) return;
       setStatus(nextStatus);
       if(native && !nextStatus.settings.target.zip_code && !setupPrompted.current) {
@@ -268,13 +269,12 @@ export default function App() {
         setDraft({...nextStatus.settings,enabled:true,timezone:Intl.DateTimeFormat().resolvedOptions().timeZone});
         setSettingsOpen(true);
       }
+      setHistoryView(nextView);
+      setHistoryTargets(nextView.targets);
       setLatest(nextLatest);
-      setPoints(nextPoints);
-      setLastAvailable(nextLastAvailable);
-      if (
-        !nextStatus.last_error &&
-        nextLatest?.observed_at === nextStatus.last_attempt
-      ) {
+      setPoints(validRange?nextView.points:[]);
+      setLastAvailable(nextView.last_available);
+      if (!nextStatus.last_error) {
         setError((previous) =>
           previous.startsWith("The source returned an inventory error:") ||
           previous.startsWith("Inventory request failed:") ||
@@ -292,7 +292,7 @@ export default function App() {
     } finally {
       if (token === generation.current) setLoading(false);
     }
-  }, [startMs, endMs, storeId, product, validRange]);
+  }, [startMs, endMs, storeId, product, validRange, historyKey]);
 
   useEffect(()=>{void call<Catalog>("get_catalog").then(setCatalog).catch(e=>setCatalogError(errorText(e)));},[]);
   async function refreshCatalog(category:string) {
@@ -335,7 +335,7 @@ export default function App() {
   }, [range, from, to, storeId, product]);
 
   const patternSource = status?.settings.source;
-  const patternUrl = status?.settings.url;
+  const patternUrl = historyKey || status?.settings.url;
   useEffect(() => {
     if (!patternSource || !patternUrl) return;
     let cancelled = false;
@@ -352,7 +352,7 @@ export default function App() {
         return;
       }
       try {
-        const result = await call<PatternInsights>("get_patterns", { startMs: start, endMs: end, storeId, product });
+        const result = await call<PatternInsights>("get_patterns", { startMs: start, endMs: end, storeId, product, historyKey:patternUrl });
         if (!cancelled && token === generation) { setPatterns(result); setPatternsError(""); }
       } catch (error) {
         if (!cancelled && token === generation) setPatternsError(errorText(error));
@@ -389,7 +389,7 @@ export default function App() {
       Array.from(new Set(latest?.inventory.map((r) => r.product) ?? [])).sort(),
     [latest],
   );
-  const availabilityUnknown = !!status?.last_error && (status.last_attempt ?? 0) >= (latest?.observed_at ?? 0);
+  const availabilityUnknown = !!historyView?.last_error && (historyView.selected.last_attempt ?? 0) >= (latest?.observed_at ?? 0);
   const available = rows.filter((r) => r.status === "available").length;
   const purchaseConfigurations = Array.from(
     new Set([
@@ -531,6 +531,7 @@ export default function App() {
       if (status?.settings.url !== next.settings.url) {
         setStoreId("");
         setProduct("");
+        setHistoryKey("");
       }
       setStatus(next);
       setSettingsOpen(false);
@@ -577,6 +578,11 @@ export default function App() {
       "Checked at",
       "Source updated at",
       "Source",
+      "Device",
+      "Configuration",
+      "ZIP code",
+      "Carrier",
+      "Tracker identity",
       "Available configurations",
       "Total configurations",
       "Error",
@@ -585,16 +591,30 @@ export default function App() {
       new Date(p.observed_at).toISOString(),
       p.source_at ? new Date(p.source_at).toISOString() : "",
       p.source,
+      historyView?.selected.device_name??"",
+      historyView?.selected.configuration??"",
+      historyView?.selected.target?.zip_code??"",
+      historyView?.selected.target?.carrier??"",
+      historyView?.selected.key??"",
       p.error ? "" : p.available,
       p.error ? "" : p.total,
       p.error ?? "",
     ]);
     void saveExport(
-      `orchard-history-${new Date().toISOString().slice(0, 10)}.csv`,
+      `orchard-${historyView?.selected.target?.device_id??"history"}-${new Date().toISOString().slice(0, 10)}.csv`,
       [header, ...data].map((r) => r.map(csv).join(",")).join("\n"),
     );
   }
 
+  const historyTarget=historyView?.selected;
+  const viewingActive=historyTarget?.key===status?.settings.url;
+  const collectorName=catalog?.devices.find(d=>d.id===status?.settings.target.device_id)?.name??"selected device";
+  const historyColor=historyTarget?.category==="ipad"?"#587ab0":historyTarget?.category==="mac"?"#9363a7":"#548a68";
+  function selectHistory(key:string) {
+    generation.current++;
+    setHistoryKey(key);setStoreId("");setProduct("");setLogPage(0);setSelected(null);
+    setLatest(null);setPoints([]);setLastAvailable([]);setPatterns(null);setHistoryView(null);setLoading(true);
+  }
   const isChecking = busy || status?.busy;
   const appleRequestWaiting = status?.settings.source === "apple" && Math.max(status.apple_request_after ?? 0,status.server_retry_until ?? 0)>now;
   const appleCoolingDown = appleRequestWaiting && status?.apple_request_limit_reason === "cooldown";
@@ -649,7 +669,7 @@ export default function App() {
             Every check adds a new observation.
           </p>
           <div className="version">
-            Orchard <span>v0.2.0</span>
+            Orchard <span>v0.2.1</span>
           </div>
         </div>
       </aside>
@@ -709,7 +729,7 @@ export default function App() {
           {visibleError && (
             <div className="error-banner" role="alert">
               <div className="error-content">
-                {describeError(visibleError)}
+                {historyTarget && !viewingActive && sourceError ? `Collector (${collectorName}): ` : ""}{describeError(visibleError)}
                 {(sourceError ||
                   visibleError.startsWith(
                     "The source returned an inventory error:",
@@ -763,28 +783,23 @@ export default function App() {
               </button>
             </div>
           )}
-          <section className="target-bar">
-            <div className="target-icon">
-              <Smartphone size={23} />
+          <section className="target-bar history-target-bar" style={{borderLeft:`4px solid ${historyColor}`}}>
+            <div className="target-icon"><Smartphone size={23}/></div>
+            <div className="history-picker">
+              <label htmlFor="history-device">History device</label>
+              <select id="history-device" aria-label="History device" value={historyKey} onChange={e=>selectHistory(e.target.value)}>
+                <option value="">{collectorName} · active tracker</option>
+                {historyTargets.filter(t=>!t.active || t.key===historyKey).map(t=><option key={t.key} value={t.key}>{t.device_name} · {t.configuration} · {t.target?.carrier??"imported"} · ZIP {t.target?.zip_code??"—"}</option>)}
+              </select>
+              <span>{historyTarget ? `${historyTarget.configuration} · ${historyTarget.target?.carrier??"imported"} · ZIP ${historyTarget.target?.zip_code||"not set"}` : "Loading saved history…"}</span>
             </div>
-            <div>
-              <strong>
-                {catalog?.devices.find(d=>d.id===status?.settings.target.device_id)?.name ?? "Apple inventory"}
-              </strong>
-              <span>
-                {status?.settings.target.carrier ?? "unlocked"} <i /> ZIP{" "}
-                {status?.settings.target.zip_code || "Enter ZIP in settings"}
-              </span>
-            </div>
-            <button
-              onClick={() => {
-                setDraft(status?.settings ?? null);
-                setSettingsOpen(true);
-              }}
-            >
-              Edit tracker <ArrowUpRight size={14} />
-            </button>
+            <button onClick={()=>{setDraft(status?.settings??null);setSettingsOpen(true);}}>Edit active tracker <ArrowUpRight size={14}/></button>
           </section>
+          {historyTarget && <div className="history-context" role="status">
+            <span style={{color:historyColor}}>{historyTarget.checks} saved checks · {historyTarget.last_attempt?`last observed ${dateTime(historyTarget.last_attempt)}`:"no observations yet"}</span>
+            {!viewingActive && <span>Viewing saved {historyTarget.device_name} history. The collector {status?.settings.enabled?"watches":"is paused on"} {collectorName}; Check now checks {collectorName}.</span>}
+            {historyView?.last_error && !viewingActive && <span className="amber-text">Last check for this device failed: {historyView.last_error}</span>}
+          </div>}
           <div className="filter-bar">
             <div className="range-tabs" aria-label="Date range">
               {(
@@ -870,7 +885,7 @@ export default function App() {
               <div className="stats-grid">
                 <article className="stat-card">
                   <div className="stat-label">
-                    Latest availability
+                    Saved availability
                     <Smartphone size={16} />
                   </div>
                   <div className="stat-value">
@@ -928,11 +943,11 @@ export default function App() {
               <section className="panel chart-panel">
                 <div className="panel-header">
                   <div>
-                    <h2>Availability over time</h2>
-                    <p>Configurations available for pickup at each check</p>
+                    <h2>{historyTarget?.device_name??"Device"} availability over time</h2>
+                    <p>{historyTarget?.configuration??"Selected configurations"} · configurations available for pickup at each check</p>
                   </div>
                   <div className="chart-legend">
-                    <span /> Available{" "}
+                    <span style={{background:historyColor}} /> {historyTarget?.device_name??"Available"}{" "}
                     <button
                       className="icon-button"
                       title="Export filtered history"
@@ -982,12 +997,12 @@ export default function App() {
                           >
                             <stop
                               offset="0%"
-                              stopColor="#548a68"
+                              stopColor={historyColor}
                               stopOpacity={0.22}
                             />
                             <stop
                               offset="100%"
-                              stopColor="#548a68"
+                              stopColor={historyColor}
                               stopOpacity={0.015}
                             />
                           </linearGradient>
@@ -1040,13 +1055,13 @@ export default function App() {
                         <Area
                           type="stepAfter"
                           dataKey="available"
-                          stroke="#548a68"
+                          stroke={historyColor}
                           strokeWidth={2}
                           fill="url(#availableFill)"
                           connectNulls={false}
                           dot={{
                             r: 3,
-                            fill: "#548a68",
+                            fill: historyColor,
                             stroke: "#fff",
                             strokeWidth: 1,
                           }}
@@ -1138,7 +1153,7 @@ export default function App() {
                             </span>
                           )}
                         </div>
-                        <PurchaseLinks product={name} carrier={status?.settings.target.carrier} partNumber={locations[0]?.part_number ?? previous[0]?.inventory.part_number ?? rows.find(row=>row.product===name)?.part_number} />
+                        <PurchaseLinks product={name} carrier={historyTarget?.target?.carrier} partNumber={locations[0]?.part_number ?? previous[0]?.inventory.part_number ?? rows.find(row=>row.product===name)?.part_number} />
                       </div>
                     ),
                   )}
@@ -1228,7 +1243,7 @@ export default function App() {
                 <section className="panel schedule-panel">
                   <div className="panel-header">
                     <div>
-                      <h2>Last check</h2>
+                      <h2>Last check · {collectorName}</h2>
                     </div>
                     <Clock3 size={19} />
                   </div>
@@ -1255,6 +1270,7 @@ export default function App() {
                         : "Not yet"}
                     </strong>
                   </div>
+                  {viewingActive && (
                   <div className="schedule-row">
                     <span>
                       {latest?.source === "apple"
@@ -1270,6 +1286,7 @@ export default function App() {
                       {stale ? " · stale" : ""}
                     </strong>
                   </div>
+                  )}
                   {status?.settings.windows.filter(window => window.enabled).map((window, index) => (
                     <p className="window-status" key={index}>
                       <Clock3 size={13} />
@@ -1317,7 +1334,7 @@ export default function App() {
             <section className="panel log-panel">
               <div className="panel-header">
                 <div>
-                  <h2>Check history</h2>
+                  <h2>{historyTarget?.device_name??"Device"} check history</h2>
                   <p>
                     {points.length} checks · {dateTime(startMs)} to{" "}
                     {dateTime(endMs)}

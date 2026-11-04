@@ -3,6 +3,7 @@ pub mod apple_session;
 pub mod catalog;
 pub mod connection_diagnostics;
 pub mod core;
+pub mod history_view;
 pub mod patterns;
 pub mod request_guard;
 pub mod retry;

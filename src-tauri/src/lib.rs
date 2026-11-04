@@ -171,7 +171,33 @@ fn get_history(
 }
 
 #[tauri::command]
+fn get_history_view(
+    history_key: Option<String>,
+    start_ms: i64,
+    end_ms: i64,
+    store_id: String,
+    product: String,
+    state: tauri::State<'_, Arc<Tracker>>,
+) -> Result<orchard_core::history_view::HistoryView> {
+    let catalog = state.service.catalog();
+    let db = state.db()?;
+    let tx = db.unchecked_transaction().map_err(|e| e.to_string())?;
+    let view = orchard_core::history_view::read(
+        &tx,
+        &catalog,
+        history_key.as_deref(),
+        start_ms,
+        end_ms,
+        &store_id,
+        &product,
+    )?;
+    tx.commit().map_err(|e| e.to_string())?;
+    Ok(view)
+}
+
+#[tauri::command]
 async fn get_patterns(
+    history_key: Option<String>,
     start_ms: i64,
     end_ms: i64,
     store_id: String,
@@ -182,7 +208,20 @@ async fn get_patterns(
     tauri::async_runtime::spawn_blocking(move || {
         let (settings, samples) = {
             let db = tracker.db()?;
-            let settings = core::load_settings(&db)?;
+            let mut settings = core::load_settings(&db)?;
+            if let Some(key) = history_key.filter(|key| !key.is_empty() && key != &settings.url) {
+                let exists = db
+                    .query_row(
+                        "SELECT EXISTS(SELECT 1 FROM snapshots WHERE url=?1)",
+                        [&key],
+                        |row| row.get::<_, bool>(0),
+                    )
+                    .map_err(|e| e.to_string())?;
+                if !exists {
+                    return Err("This device has no saved history.".into());
+                }
+                settings.url = key;
+            }
             let samples =
                 patterns::read_samples(&db, &settings, start_ms, end_ms, &store_id, &product)?;
             (settings, samples)
@@ -334,6 +373,7 @@ pub fn run() {
             export_connection_diagnostics,
             hide_apple_session,
             get_history,
+            get_history_view,
             get_patterns,
             get_last_available,
             get_latest,
