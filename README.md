@@ -1,10 +1,97 @@
 # Orchard
 
-Apple pickup availability, observed over time. A local desktop app, JSON CLI, and MCP server for iPhone, iPad, and Mac shoppers.
+**Find an iPhone, iPad, or Mac available for pickup at a nearby Apple Store.** Orchard checks for you, keeps a local history, and can notify you when stock appears. You complete the purchase on Apple’s website.
 
-Orchard reads Apple's public pickup endpoints, records real observations in SQLite, and shows when a configuration becomes available nearby. Failed checks remain **unknown**, not “out of stock.” It does not reserve products or place orders.
+**[Download the Mac app](https://github.com/ClancyDennis/orchard/releases/download/v0.2.1/Orchard_0.2.1_aarch64.dmg)** · [All downloads](https://github.com/ClancyDennis/orchard/releases/latest) · [First-time setup](#your-first-check) · [Codex / Claude Code](docs/agents.md)
 
-## Desktop
+Free and open source. No Orchard account or API key. **US Apple Stores only.** The downloadable app requires an **Apple Silicon Mac (M1 or newer), macOS 12 or later**. See [other platforms](#other-platforms-and-building-from-source) for current support.
+
+![Orchard overview showing the selected iPad, date filters, availability timeline, and pickup stores](docs/images/overview.jpg)
+
+*Orchard 0.2.1 browser preview, using one real observation from November 4, 2026. This is an interface example, not current stock. A new installation starts with an empty history.*
+
+## Install on your Mac
+
+You do **not** need Git, Node, Rust, or a terminal to use the downloadable desktop app.
+
+1. Download **[Orchard_0.2.1_aarch64.dmg](https://github.com/ClancyDennis/orchard/releases/download/v0.2.1/Orchard_0.2.1_aarch64.dmg)**. On the Releases page, choose the `.dmg` under **Assets**. The `.tar.gz` is the separate command-line tool; **Source code** is for developers.
+2. Open the downloaded `.dmg`, then drag **Orchard** into **Applications**.
+3. Open **Applications → Orchard**. You can eject the disk image afterward.
+
+**First-launch limitation:** this early release is not signed or notarized by Apple, so macOS may refuse to open it automatically. If the message says Apple cannot verify the developer and you trust this download, follow [Apple’s instructions for opening an app from an unidentified developer](https://support.apple.com/en-us/102445): after attempting to open it, look in **System Settings → Privacy & Security → Open Anyway**. On older macOS versions this is under **System Preferences → Security & Privacy**. Do not proceed if macOS reports malware or says the app will damage your computer. A managed work Mac may not permit unsigned apps.
+
+To check your Mac type, open **Apple menu → About This Mac**. A **Chip** entry such as Apple M1, M2, M3, or M4 means Apple Silicon. An **Intel processor** cannot run this download.
+
+## Your first check
+
+On a fresh install, Orchard opens Settings. You can also open **Settings** from the sidebar at any time.
+
+1. **Choose what you want.** Pick a **Category** and **Device**. Search **Find a configuration** for words such as `512GB`, `Star White`, or `16GB`, then select the exact **Configuration**. Choose **All configurations** if you are flexible. For an iPhone, choose **Unlocked** or your carrier.
+2. **Enter your five-digit US ZIP code.** Orchard looks up nearby Apple Stores.
+3. **Keep Connection on “Automatic Apple endpoints.”** You do not need to understand endpoints or open a browser session for normal use.
+4. **Set a check rate and turn on Scheduled collection.** Start with **2 minutes**. Leave **Time windows** empty for one rate all day; add them later if you want different morning/evening rates. The schedule time zone is detected on first launch—leave it as detected if it matches your location.
+5. **Enable Availability notifications if wanted, then click Save settings.** Allow notifications when macOS asks. The first check runs shortly afterward; the next check time appears in the overview.
+
+![Settings showing category, device, configuration search, and ZIP code](docs/images/device-settings.jpg)
+
+*Configuration controls in the browser preview. Collection and saving settings require the installed desktop app.*
+
+After a successful check, look under **Available for pickup** below the graph. A positive result lists the store and Apple’s pickup quote. Click **Apple Store** to continue on Apple’s site; **Education Store** opens the corresponding education-store link. Apple determines eligibility, price, and final availability. Orchard does not reserve stock or buy anything.
+
+**Keep Orchard running and your Mac awake.** Closing its window keeps collection running in the menu bar. Quitting Orchard, putting the Mac to sleep, or closing a laptop lid normally stops checks until it is awake and running again.
+
+## Understand what you see
+
+| In Orchard | What it means |
+|---|---|
+| **Available for pickup** | Apple returned pickup availability at the stated observation time. Confirm it on Apple’s site before purchasing. |
+| **0 available** after a successful check | None of the checked store/configuration combinations were available at that time. |
+| **Unknown** or **failed check** | Orchard could not obtain a reliable answer. This does **not** mean the device is out of stock. |
+| **Collector cooling down** | Apple rejected or limited requests. Orchard will retry at the displayed time; repeated clicks and restarts will not shorten the wait. |
+| **Greyed-out device / Last seen available** | It was available earlier. This is historical information, not a current pickup offer. |
+| **One dot or an empty graph** | There is little or no collected history yet. Keep the app running; Orchard cannot retrieve last week’s stock retroactively. |
+
+The graph counts **store/configuration combinations**, not the number of physical devices in stock. Apple may say **Available Tomorrow** when a product can be ordered for pickup but the earliest pickup date is tomorrow.
+
+## Browse a different device’s timeline
+
+Use **History device** above the graph. The timeline, check log, store filters, patterns, and exports all follow that saved device/configuration/ZIP selection. iPhone, iPad, and Mac timelines have different colors and clear labels.
+
+**Browsing history does not change what Orchard collects.** Use **Edit active tracker** or **Settings** to change the watched device. The desktop schedules **one device selection at a time**; that selection may include all its configurations. Other histories appear once that target has been checked, including checks made through the CLI or an agent.
+
+## Common questions
+
+**My device or configuration is missing.** Open Settings, select its category, and click **Refresh from Apple**. If Apple introduced a new family page, expand **Add a newer Apple buy page** and enter that Apple US buy-page URL. A failed refresh keeps the last good catalog. Standard Mac configurations are supported; custom-built combinations without a pickup part number are excluded.
+
+**I see error 541 or 429.** Let the displayed cooldown finish. Use a two-minute rate as a starting point and avoid running several inventory tools on the same network. Switching connection methods does not provide extra request quota. Apple can still limit checks at any rate.
+
+**Why are there no notifications?** Turn on **Availability notifications** in Orchard and try **Send test notification**. Also check **System Settings → Notifications → Orchard** and Focus/Do Not Disturb. Alerts are for newly available options; continuous availability is not announced on every check.
+
+**Can I use it outside the US?** Not yet. This version uses US Apple Store pickup and five-digit US ZIP codes.
+
+**Where is my history?** It stays on your computer. Settings shows the database location. Use the export buttons for CSV/JSON. Updating Orchard preserves its saved history and settings.
+
+**Does the app need Chrome?** Normal direct checks do not. The optional browser connection and some fallback paths need installed Chrome, Edge, or Chromium. Keep Automatic selected unless you are troubleshooting.
+
+**Still stuck?** Check **Check log** and **Settings → Apple connection**, then [open an issue](https://github.com/ClancyDennis/orchard/issues). Include your Orchard version, device, and error text. Do not upload cookies, account details, or your full database.
+
+## Use with Codex, Claude Code, or a terminal
+
+This is optional. The desktop app works by itself.
+
+Orchard also provides a JSON command-line tool and an MCP server—an interface that lets an AI coding assistant list devices, check stock, and read saved history. They share the desktop’s local request limits and do not purchase products.
+
+See **[agent and command-line setup](docs/agents.md)** for installation, example prompts, and tool responses.
+
+## Other platforms and building from source
+
+| Platform | Current support |
+|---|---|
+| **Apple Silicon Mac** | Downloadable desktop app and CLI; unsigned early release. |
+| **Intel Mac** | No prebuilt download. Building from source may work, but has not been verified. |
+| **Windows / Linux** | CLI and MCP tested in CI; install from source. Desktop packages are not provided or verified. |
+
+Developers can build the desktop app with Node 22.13+, Rust stable, and [Tauri’s platform prerequisites](https://v2.tauri.app/start/prerequisites/):
 
 ```sh
 git clone https://github.com/ClancyDennis/orchard.git
@@ -13,79 +100,8 @@ npm ci
 npm run desktop
 ```
 
-Requires Node 22.13+, Rust stable, and [Tauri's platform prerequisites](https://v2.tauri.app/start/prerequisites/). To create a local macOS app and DMG, run `npm run bundle`. The current desktop build has been tested on Apple Silicon macOS. It is not signed or notarized for public distribution; Windows/Linux desktop packaging has not been verified.
+To build the CLI, run `cargo install --path crates/orchard-cli --locked` from the repository folder. For testing and architecture, see [Contributing](CONTRIBUTING.md) and [How Orchard works](docs/how-it-works.md).
 
-On first launch, select a category, device, configuration, and US ZIP code. Collection starts after you save an enabled schedule. Existing Orchard installations retain their settings and history.
+[Security](SECURITY.md) · [MIT license](LICENSE)
 
-- **Devices:** iPhone Duo, 18 Pro / Pro Max, and other cataloged iPhones; iPad, Air, Pro, and mini; standard Mac configurations. The bundled catalog also includes Studio Displays.
-- **Configuration search:** choose all configurations or one exact capacity, color, size, chip, and SKU. iPhones support unlocked or carrier variants. iPads include Wi-Fi and unlocked cellular variants.
-- **Catalog refresh:** read current part numbers and dimensions from Apple's buy-page data. Failed refreshes keep the last good catalog. Add a newer US family buy page from Settings without editing source code.
-- **History:** switch the History device selector between saved device/configuration/carrier/ZIP timelines without changing the active collector. The graph, log, availability cards, filters, and patterns all follow that selection. iPhone, iPad, and Mac graphs use distinct colors; CSV exports include device and tracker identity. History begins with your own observations.
-- **Pickup links:** standard and education-store links for the specific configuration. Apple's checkout determines eligibility, pricing, and final pickup availability.
-- **Schedules:** daily windows, independent rates, overnight support, and an IANA time zone. Closing the window keeps the collector in the tray; the app must be running and the computer awake.
-- **Notifications:** the desktop app alerts on newly available store/configuration combinations. Continuous stock and failed checks do not create repeated alerts.
-- **When to watch:** local statistics identify hours with observed availability, accounting for different polling rates and failure gaps. This is historical evidence, not Apple's update schedule.
-
-The desktop currently schedules **one selected device target at a time**. Selecting another target opens its separate history. Agent clients can check other targets without changing the desktop selection; all share the same request budget when using the same database.
-
-## CLI and MCP
-
-The CLI needs no Node, GUI, Apple login, or API key:
-
-```sh
-cargo install --path crates/orchard-cli --locked
-orchard catalog --category ipad
-orchard catalog --device ipad-pro
-orchard check --device ipad-pro --zip 10001 --part MDWU4LL/A
-orchard watch --device ipad-pro --zip 10001 --part MDWU4LL/A --interval 120 --timeout 1800
-```
-
-`check` returns JSON; `watch` emits NDJSON and waits until stock appears or its timeout expires. Always select SKUs from `catalog`; bundled examples may become outdated. `latest`, `history`, and `status` read saved state without querying Apple.
-
-Start the stdio MCP server with `orchard mcp`. It provides six tools for catalog discovery/refresh, inventory checks, saved inventory/history, and status. See **[agent setup and API semantics](docs/agents.md)** for Codex, Claude Code, and other MCP clients.
-
-```sh
-codex mcp add orchard -- /absolute/path/to/orchard mcp
-claude mcp add --transport stdio orchard -- /absolute/path/to/orchard mcp
-```
-
-The CLI, MCP server, and desktop use the same Rust library, database format, and pacing gate. MCP opens no HTTP listener. Commands for another target do not modify desktop settings.
-
-## Apple connections and limits
-
-Automatic mode first uses `/shop/retail/pickup-message`. If that endpoint returns 404 or 410, it can use `/shop/fulfillment-messages` through a normal browser session. Direct-only and browser-session modes are also selectable. A browser session requires installed Chrome, Edge, or Chromium; it uses its own temporary profile and no personal Safari/Chrome credentials.
-
-**A 541, 429, or an active Retry-After does not trigger endpoint switching.** All methods share a persisted minimum of one minute between checks. Your slower configured rate is preserved. The first 541/429 starts a fifteen-minute cooldown, increasing to thirty and sixty minutes after consecutive failures. Manual clicks, restarts, and device changes cannot shorten a cooldown. Two minutes is a reasonable starting rate; no rate guarantees Apple will accept requests, and other clients on the same public IP may share its limits.
-
-Diagnostics record the endpoint, HTTP status, transport, timing, and optional browser cookie **metadata**. Cookie values, authentication headers, raw response bodies, and personal browser data are excluded. Logs stay local and rotate. A successful HTTP response must still contain all requested configurations for each returned store before Orchard accepts it as inventory.
-
-Orchard uses Apple-native paths only. The old third-party collector has been removed. Legacy tracker addresses are decoded solely during migration into local `apple://us/...` identities; archived observations retain their original source label. These identities are database keys, not network URLs.
-
-## Catalog scope
-
-The catalog parser reads `productSelectionData` as JSON; it does not execute Apple's page scripts. iPhone/iPad pages expose sellable SKUs directly. Mac pages include standard SKU configurations and customizable entries; entries without a sellable pickup SKU are excluded. Apple product redirects supply memory/storage descriptions where available. Incomplete descriptions are labeled with the SKU and a detail warning. Custom-built Macs and every possible CTO combination are not supported.
-
-This release is **US-only**. New product-page layouts may require a parser update. Catalog freshness and inventory freshness are separate: a newly refreshed catalog does not establish stock.
-
-## Data and development
-
-Data stays under `local.orchard.iphone-tracker` in the platform's application-data directory. `orchard status` or desktop Settings shows the database path. `--database /absolute/path/inventory.sqlite3` selects a separate workspace; it does not grant extra Apple quota. Existing migrations preserve snapshot IDs, timestamps, failures, and schedules.
-
-```sh
-cargo test --locked -p orchard-core -p orchard-cli
-cargo build --locked -p orchard-cli
-npm run test:mcp
-npm run build
-cargo fmt --all --check
-```
-
-- `crates/orchard-core`: catalog, request transports, SQLite, pacing, history, and analysis.
-- `crates/orchard-cli`: JSON CLI and stdio MCP server.
-- `src-tauri`: desktop integration and notifications.
-- `src`: React UI.
-
-Tests use fixtures and local HTTP servers. The official MCP SDK test verifies handshake, tools, historical/unknown states, cooldown sharing, and bounded polling without Apple requests. An explicitly ignored live test is available for manual endpoint verification. `npm run dev` shows one clearly dated real preview observation, not simulated live stock.
-
-[Contributing](CONTRIBUTING.md) · [Security](SECURITY.md) · [MIT license](LICENSE)
-
-Orchard is independent of Apple. Apple names and product data belong to their respective owners. Public community investigations in [apple-store-helper #126](https://github.com/hteen/apple-store-helper/issues/126), [#131](https://github.com/hteen/apple-store-helper/issues/131), and [Apple Pickup Watcher](https://github.com/ENCHIGO/apple-pickup-watcher) helped explain endpoint and rate-limit behavior. Orchard's implementation is independent; no code from those projects is included.
+Orchard is independent of Apple. Apple’s website is the final authority on price and pickup availability.

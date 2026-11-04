@@ -1,13 +1,32 @@
 # Agent clients
 
-Install the CLI from the repository:
+You can use Orchard’s desktop app without any of these steps. This guide is for terminal users and agent clients.
+
+## Install the command-line tool
+
+**Apple Silicon Mac:** download [`orchard-macos-arm64.tar.gz`](https://github.com/ClancyDennis/orchard/releases/download/v0.2.1/orchard-macos-arm64.tar.gz), open it to unpack, and locate the `orchard` executable inside the `orchard-macos-arm64` folder. You can run it using its full path; for example:
+
+```sh
+"$HOME/Downloads/orchard-macos-arm64/orchard" --help
+```
+
+If you unpacked it elsewhere, use that path instead. The binary is unsigned; the [README’s first-launch note](../README.md#install-on-your-mac) also applies.
+
+**Build from source** on macOS, Linux, or Windows with Rust stable and a C build toolchain installed:
+
+```sh
+git clone https://github.com/ClancyDennis/orchard.git
+cd orchard
+```
+
+Then install:
 
 ```sh
 cargo install --path crates/orchard-cli --locked
 orchard --help
 ```
 
-The binary is normally in `~/.cargo/bin/`. Use its absolute path when configuring a desktop client whose PATH differs from your shell.
+A source install puts the binary in `~/.cargo/bin/` (`orchard.exe` on Windows). If you use the prebuilt archive, it stays wherever you unpacked it. Use its absolute path when configuring a desktop client whose PATH differs from your shell.
 
 ## Codex
 
