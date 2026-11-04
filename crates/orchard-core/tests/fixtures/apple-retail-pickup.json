@@ -1,0 +1,43 @@
+{
+  "head": {
+    "status": "200"
+  },
+  "body": {
+    "stores": [
+      {
+        "storeNumber": "R002",
+        "storeName": "Palo Alto",
+        "city": "Palo Alto",
+        "storeDistanceWithUnit": "2.11 mi",
+        "partsAvailability": {
+          "MK1F4LL/A": {
+            "pickupDisplay": "unavailable",
+            "pickupSearchQuote": "Currently unavailable",
+            "messageTypes": {
+              "regular": {
+                "storePickupProductTitle": "iPhone Duo 256GB Night Sky"
+              }
+            }
+          }
+        }
+      },
+      {
+        "storeNumber": "R099",
+        "storeName": "Stanford Shopping Center",
+        "city": "Palo Alto",
+        "storeDistanceWithUnit": "2.36 mi",
+        "partsAvailability": {
+          "MK1F4LL/A": {
+            "pickupDisplay": "unavailable",
+            "pickupSearchQuote": "Currently unavailable",
+            "messageTypes": {
+              "regular": {
+                "storePickupProductTitle": "iPhone Duo 256GB Night Sky"
+              }
+            }
+          }
+        }
+      }
+    ]
+  }
+}

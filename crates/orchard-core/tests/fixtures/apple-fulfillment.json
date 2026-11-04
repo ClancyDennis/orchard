@@ -1,0 +1,82 @@
+{
+  "head": {
+    "status": "200",
+    "data": {}
+  },
+  "body": {
+    "content": {
+      "pickupMessage": {
+        "stores": [
+          {
+            "storeName": "Palo Alto",
+            "storeNumber": "R002",
+            "city": "Palo Alto",
+            "storeDistanceWithUnit": "0.47 mi",
+            "partsAvailability": {
+              "MK1L4LL/A": {
+                "partNumber": "MK1L4LL/A",
+                "pickupDisplay": "unavailable",
+                "pickupSearchQuote": "Currently unavailable",
+                "messageTypes": {
+                  "compact": {
+                    "storeSearchEnabled": true,
+                    "storePickupLabel": "Pickup:",
+                    "storeSelectionEnabled": false,
+                    "storePickupQuote": "Currently unavailable",
+                    "storePickupLinkText": "Check another store",
+                    "storePickupProductTitle": "iPhone Duo 1TB Night Sky",
+                    "basePartNumber": "MK1L4"
+                  },
+                  "regular": {
+                    "storeSearchEnabled": true,
+                    "storePickupLabel": "Pickup:",
+                    "storeSelectionEnabled": false,
+                    "storePickupQuote": "Currently unavailable at Apple Palo Alto",
+                    "storePickupQuote2_0": "Currently unavailable at <button type=\"button\" class=\"rf-pickup-quote-overlay-trigger as-retailavailabilitytrigger-infobutton retail-availability-search-trigger as-buttonlink as-buttonlink-inline icon icon-after icon-pluscircle\" data-ase-overlay=\"buac-overlay\" data-ase-click=\"show\">Apple Palo Alto<span class=\"visuallyhidden\">\u00a0(Check Availability)</span></button>",
+                    "storePickupLinkText": "Check another store",
+                    "storePickupProductTitle": "iPhone Duo 1TB Night Sky",
+                    "basePartNumber": "MK1L4"
+                  }
+                }
+              }
+            }
+          },
+          {
+            "storeName": "Stanford Shopping Center",
+            "storeNumber": "R099",
+            "city": "Palo Alto",
+            "storeDistanceWithUnit": "1.02 mi",
+            "partsAvailability": {
+              "MK1L4LL/A": {
+                "partNumber": "MK1L4LL/A",
+                "pickupDisplay": "unavailable",
+                "pickupSearchQuote": "Currently unavailable",
+                "messageTypes": {
+                  "compact": {
+                    "storeSearchEnabled": true,
+                    "storePickupLabel": "Pickup:",
+                    "storeSelectionEnabled": false,
+                    "storePickupQuote": "Currently unavailable",
+                    "storePickupLinkText": "Check another store",
+                    "storePickupProductTitle": "iPhone Duo 1TB Night Sky",
+                    "basePartNumber": "MK1L4"
+                  },
+                  "regular": {
+                    "storeSearchEnabled": true,
+                    "storePickupLabel": "Pickup:",
+                    "storeSelectionEnabled": false,
+                    "storePickupQuote": "Currently unavailable at Apple Stanford Shopping Center",
+                    "storePickupQuote2_0": "Currently unavailable at <button type=\"button\" class=\"rf-pickup-quote-overlay-trigger as-retailavailabilitytrigger-infobutton retail-availability-search-trigger as-buttonlink as-buttonlink-inline icon icon-after icon-pluscircle\" data-ase-overlay=\"buac-overlay\" data-ase-click=\"show\">Apple Stanford Shopping Center<span class=\"visuallyhidden\">\u00a0(Check Availability)</span></button>",
+                    "storePickupLinkText": "Check another store",
+                    "storePickupProductTitle": "iPhone Duo 1TB Night Sky",
+                    "basePartNumber": "MK1L4"
+                  }
+                }
+              }
+            }
+          }
+        ]
+      }
+    }
+  }
+}

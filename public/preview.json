@@ -1,0 +1,131 @@
+{
+  "id": 3257,
+  "observed_at": 1793827275553,
+  "source_at": null,
+  "url": "apple://us/94025/ipad-pro/unlocked?part=MDWU4LL%2FA",
+  "error": null,
+  "source": "apple",
+  "next_check_at": 1793827515553,
+  "inventory": [
+    {
+      "store": "Palo Alto",
+      "store_id": "R002",
+      "city": "Palo Alto",
+      "distance": "2.11 mi",
+      "product": "11-inch iPad Pro Wi\u2011Fi 2TB with standard glass - Space Black",
+      "part_number": "MDWU4LL/A",
+      "status": "ineligible",
+      "pickup_quote": "Currently unavailable"
+    },
+    {
+      "store": "Burlingame",
+      "store_id": "R029",
+      "city": "Burlingame",
+      "distance": "11.98 mi",
+      "product": "11-inch iPad Pro Wi\u2011Fi 2TB with standard glass - Space Black",
+      "part_number": "MDWU4LL/A",
+      "status": "ineligible",
+      "pickup_quote": "Currently unavailable"
+    },
+    {
+      "store": "Stonestown",
+      "store_id": "R033",
+      "city": "San Francisco",
+      "distance": "24.14 mi",
+      "product": "11-inch iPad Pro Wi\u2011Fi 2TB with standard glass - Space Black",
+      "part_number": "MDWU4LL/A",
+      "status": "ineligible",
+      "pickup_quote": "Currently unavailable"
+    },
+    {
+      "store": "Valley Fair",
+      "store_id": "R039",
+      "city": "Santa Clara",
+      "distance": "16.15 mi",
+      "product": "11-inch iPad Pro Wi\u2011Fi 2TB with standard glass - Space Black",
+      "part_number": "MDWU4LL/A",
+      "status": "available",
+      "pickup_quote": "Available Today"
+    },
+    {
+      "store": "Bay Street",
+      "store_id": "R057",
+      "city": "Emeryville",
+      "distance": "25.67 mi",
+      "product": "11-inch iPad Pro Wi\u2011Fi 2TB with standard glass - Space Black",
+      "part_number": "MDWU4LL/A",
+      "status": "ineligible",
+      "pickup_quote": "Currently unavailable"
+    },
+    {
+      "store": "Union Square",
+      "store_id": "R075",
+      "city": "San Francisco",
+      "distance": "25.18 mi",
+      "product": "11-inch iPad Pro Wi\u2011Fi 2TB with standard glass - Space Black",
+      "part_number": "MDWU4LL/A",
+      "status": "ineligible",
+      "pickup_quote": "Currently unavailable"
+    },
+    {
+      "store": "Stanford Shopping Center",
+      "store_id": "R099",
+      "city": "Palo Alto",
+      "distance": "2.36 mi",
+      "product": "11-inch iPad Pro Wi\u2011Fi 2TB with standard glass - Space Black",
+      "part_number": "MDWU4LL/A",
+      "status": "ineligible",
+      "pickup_quote": "Currently unavailable"
+    },
+    {
+      "store": "Stoneridge Mall",
+      "store_id": "R101",
+      "city": "Pleasanton",
+      "distance": "20.13 mi",
+      "product": "11-inch iPad Pro Wi\u2011Fi 2TB with standard glass - Space Black",
+      "part_number": "MDWU4LL/A",
+      "status": "ineligible",
+      "pickup_quote": "Currently unavailable"
+    },
+    {
+      "store": "Oakridge",
+      "store_id": "R105",
+      "city": "San Jose",
+      "distance": "22.93 mi",
+      "product": "11-inch iPad Pro Wi\u2011Fi 2TB with standard glass - Space Black",
+      "part_number": "MDWU4LL/A",
+      "status": "ineligible",
+      "pickup_quote": "Currently unavailable"
+    },
+    {
+      "store": "Hillsdale",
+      "store_id": "R231",
+      "city": "San Mateo",
+      "distance": "8.4 mi",
+      "product": "11-inch iPad Pro Wi\u2011Fi 2TB with standard glass - Space Black",
+      "part_number": "MDWU4LL/A",
+      "status": "ineligible",
+      "pickup_quote": "Currently unavailable"
+    },
+    {
+      "store": "Los Gatos",
+      "store_id": "R240",
+      "city": "Los Gatos",
+      "distance": "20.24 mi",
+      "product": "11-inch iPad Pro Wi\u2011Fi 2TB with standard glass - Space Black",
+      "part_number": "MDWU4LL/A",
+      "status": "available",
+      "pickup_quote": "Available Today"
+    },
+    {
+      "store": "Apple Park Visitor Center",
+      "store_id": "R824",
+      "city": "Cupertino",
+      "distance": "13.42 mi",
+      "product": "11-inch iPad Pro Wi\u2011Fi 2TB with standard glass - Space Black",
+      "part_number": "MDWU4LL/A",
+      "status": "unavailable",
+      "pickup_quote": "Currently unavailable"
+    }
+  ]
+}

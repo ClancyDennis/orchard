@@ -1,0 +1,28 @@
+[package]
+name = "iphone-tracker"
+version = "0.2.0"
+description = "Local iPhone inventory history and scheduled checks"
+edition = "2021"
+
+[lib]
+name = "iphone_tracker_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+orchard-core = { path = "../crates/orchard-core" }
+tauri = { version = "2", features = ["tray-icon"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+rusqlite = { version = "0.38", features = ["bundled"] }
+reqwest = { version = "0.12", default-features = false, features = ["blocking", "rustls-tls", "cookies"] }
+scraper = "0.25"
+chrono = { version = "0.4", default-features = false, features = ["std"] }
+chrono-tz = "0.10"
+tauri-plugin-opener = "2"
+tauri-plugin-notification = "2"
+
+tungstenite = { version = "0.28", default-features = false, features = ["handshake"] }
+ctrlc = { version = "3", features = ["termination"] }

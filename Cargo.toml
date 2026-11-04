@@ -1,0 +1,10 @@
+[workspace]
+members = ["crates/orchard-core", "crates/orchard-cli", "src-tauri"]
+default-members = ["crates/orchard-core", "crates/orchard-cli"]
+resolver = "2"
+
+[workspace.package]
+version = "0.2.0"
+edition = "2021"
+license = "MIT"
+repository = "https://github.com/ClancyDennis/orchard"

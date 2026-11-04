@@ -1,0 +1,17 @@
+node_modules/
+dist/
+src-tauri/target/
+.DS_Store
+.catalog-research/
+target/
+src-tauri/gen/
+src-tauri/Cargo.lock
+/*.png
+*.sqlite3*
+*.db
+*.request.lock
+*.jsonl*
+.env
+.env.*
+!.env.example
+/.release/
