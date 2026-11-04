@@ -1594,8 +1594,8 @@ export default function App() {
                   <strong>History saved locally</strong>
                   <code>{status?.db_path}</code>
                   <span>
-                    History is kept until you remove the database. Changing the
-                    URL keeps each tracker’s history separate.
+                    History is kept until you remove the database. Each device,
+                    configuration, and ZIP code keeps its own history.
                   </span>
                 </div>
               </div>

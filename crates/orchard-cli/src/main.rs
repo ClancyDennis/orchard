@@ -141,7 +141,7 @@ pub fn run_tool(service: &Service, name: &str, args: &Value) -> Result<Value, St
             let t = target(args, service)?;
             t.validate(false)?;
             let end = integer(args, "end_ms")?.unwrap_or_else(core::now_ms);
-            let start = integer(args, "start_ms")?.unwrap_or(end - 7 * 86400000);
+            let start = integer(args, "start_ms")?.unwrap_or(end.saturating_sub(7 * 86400000));
             if start > end {
                 return Err("start_ms must be before end_ms".into());
             }

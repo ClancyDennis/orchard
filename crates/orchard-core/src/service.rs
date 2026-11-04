@@ -306,7 +306,12 @@ impl Service {
             .map_err(|e| e.to_string())?;
         match fs2::FileExt::try_lock_exclusive(&lock) {
             Ok(()) => Ok(Some(lock)),
-            Err(error) if error.kind() == std::io::ErrorKind::WouldBlock => Ok(None),
+            Err(error)
+                if error.kind() == std::io::ErrorKind::WouldBlock
+                    || error.raw_os_error() == fs2::lock_contended_error().raw_os_error() =>
+            {
+                Ok(None)
+            }
             Err(error) => Err(error.to_string()),
         }
     }
